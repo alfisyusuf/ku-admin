@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dasbor Admin - Link Guru</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Font (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- SweetAlert2 (Notifikasi) -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Lucide Icons (Ikon) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- SortableJS untuk drag & drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* bg-gray-50 */
+        }
+        /* Style untuk link nav yang aktif */
+        .nav-link-active {
+            @apply bg-blue-600 text-white;
+        }
+        .nav-link {
+            @apply text-gray-600 hover:bg-gray-100;
+        }
+        /* Shadow yang lebih halus */
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+        /* Style untuk input yang fokus */
+        .input-focus {
+            @apply focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+        }
+        /* Style untuk item link yang bisa di-drag */
+        .link-item {
+            @apply py-4 px-4 bg-white border border-gray-100 rounded-lg mb-2 cursor-move transition-all hover:shadow-sm;
+        }
+        .link-item.dragging {
+            @apply opacity-50 bg-blue-50 border-blue-200;
+        }
+        /* Style untuk nomor urut */
+        .order-badge {
+            /* mr-3 DIHAPUS DARI SINI */
+            @apply flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-medium text-sm;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- 
+      =====================
+      HEADER / NAVBAR
+      =====================
+      Link "Link Guru" sekarang aktif
+    -->
+    <header class="bg-white shadow-sm sticky top-0 z-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                
+                <!-- Kiri: Judul dan Navigasi Desktop -->
+                <div class="flex items-center">
+                    <div class="flex items-center">
+                        <div class="bg-blue-600 p-2 rounded-lg mr-3">
+                            <i data-lucide="shield" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <h1 class="text-2xl font-bold text-gray-800">Admin Ujian</h1>
+                    </div>
+                    
+                    <!-- Menu Desktop (Link Aktif Diperbarui) -->
+                    <nav class="hidden md:flex ml-10 space-x-1">
+                        <a href="manajemen-token.html" class="nav-link px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                            <i data-lucide="key" class="w-4 h-4 inline mr-2"></i>
+                            Manajemen Token
+                        </a>
+                        <a href="#" class="nav-link-active px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                            <i data-lucide="link" class="w-4 h-4 inline mr-2"></i>
+                            Link Guru
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- Kanan: Tombol Logout (Desktop) dan Tombol Burger (Mobile) -->
+                <div class="flex items-center">
+                    <button id="logout-btn-desktop" class="hidden md:flex items-center text-gray-600 hover:bg-gray-100 hover:text-red-500 p-2 rounded-lg transition-all">
+                        <i data-lucide="log-out" class="w-5 h-5 mr-2"></i>
+                        <span>Logout</span>
+                    </button>
+                    <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-all">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Dropdown Mobile (Link Aktif Diperbarui) -->
+        <div id="mobile-menu" class="hidden md:hidden shadow-lg border-t border-gray-100 bg-white">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="manajemen-token.html" class="text-gray-700 hover:bg-gray-50 block px-3 py-3 rounded-lg text-base font-medium transition-all">
+                    <i data-lucide="key" class="w-4 h-4 inline mr-2"></i>
+                    Manajemen Token
+                </a>
+                <a href="#" class="bg-blue-50 text-blue-700 block px-3 py-3 rounded-lg text-base font-medium transition-all">
+                    <i data-lucide="link" class="w-4 h-4 inline mr-2"></i>
+                    Link Guru
+                </a>
+                <button id="logout-btn-mobile" class="w-full text-left text-gray-700 hover:bg-red-50 hover:text-red-500 block px-3 py-3 rounded-lg text-base font-medium transition-all">
+                    <i data-lucide="log-out" class="w-4 h-4 inline mr-2"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 
+      =====================
+      KONTEN UTAMA BARU
+      =====================
+    -->
+    <main class="max-w-7xl mx-auto p-6 lg:p-8 w-full">
+        
+        <!-- Header Halaman dengan Breadcrumb (Diperbarui) -->
+        <div class="mb-8">
+            <nav class="flex mb-3" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="#" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-blue-600">
+                            <i data-lucide="home" class="w-4 h-4 mr-2"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                            <span class="ml-1 text-sm font-medium text-gray-700 md:ml-2">Link Guru</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+            <h1 class="text-3xl font-bold text-gray-900">Link Guru</h1>
+            <p class="text-gray-600 mt-2">Kelola daftar link yang akan dilihat oleh guru dan pengawas</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- KARTU 1: FORMULIR TAMBAH/EDIT LINK -->
+            <div class="lg:col-span-1 bg-white p-6 rounded-xl card-shadow border border-gray-100">
+                <div class="flex items-center mb-6">
+                    <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                        <i data-lucide="plus-circle" class="w-5 h-5 text-blue-600" id="form-icon"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold text-gray-800" id="form-title">Tambah Link Baru</h2>
+                </div>
+
+                <form id="link-form" class="space-y-5">
+                    <!-- Hidden input untuk menyimpan ID saat mengedit -->
+                    <input type="hidden" id="edit-link-id">
+                    
+                    <div>
+                        <label for="link-text" class="block text-sm font-medium text-gray-700 mb-2">
+                            Teks Tombol
+                        </label>
+                        <div class="relative">
+                            <input type="text" id="link-text" placeholder="Contoh: Absensi Guru"
+                                   class="w-full px-4 py-3 text-base border border-gray-300 rounded-lg input-focus transition-all">
+                            <i data-lucide="type" class="absolute right-3 top-3.5 w-5 h-5 text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="link-url" class="block text-sm font-medium text-gray-700 mb-2">
+                            URL (Link) Tujuan
+                        </label>
+                        <div class="relative">
+                            <input type="url" id="link-url" placeholder="https://..."
+                                   class="w-full px-4 py-3 text-base border border-gray-300 rounded-lg input-focus transition-all">
+                            <i data-lucide="link" class="absolute right-3 top-3.5 w-5 h-5 text-gray-400"></i>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Pastikan menyertakan "https://"</p>
+                    </div>
+
+                    <div class="flex flex-col space-y-3">
+                        <button type="submit" class="w-full bg-blue-600 text-white font-medium py-3 px-4 rounded-lg hover:bg-blue-700 transition-all flex items-center justify-center">
+                            <i data-lucide="save" class="w-4 h-4 mr-2"></i>
+                            <span id="save-btn-text">Simpan Link</span>
+                        </button>
+                        <button type="button" id="cancel-edit-btn" class="w-full bg-gray-100 text-gray-700 font-medium py-3 px-4 rounded-lg hover:bg-gray-200 transition-all flex items-center justify-center" style="display: none;">
+                            <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                            Batal Edit
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- KARTU 2: DAFTAR LINK AKTIF -->
+            <div class="lg:col-span-2 bg-white p-6 rounded-xl card-shadow border border-gray-100">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                            <i data-lucide="list-checks" class="w-5 h-5 text-blue-600"></i>
+                        </div>
+                        <h2 class="text-xl font-semibold text-gray-800">Daftar Link Aktif</h2>
+                    </div>
+                    <div class="text-sm text-gray-500 flex items-center">
+                        <i data-lucide="move" class="w-4 h-4 mr-1"></i>
+                        Drag untuk mengatur urutan
+                    </div>
+                </div>
+
+                <!-- Kontainer untuk daftar link -->
+                <div id="link-list-container" class="space-y-3">
+                    <!-- Konten di-generate oleh JavaScript -->
+                </div>
+                
+                <!-- Tampilan jika kosong -->
+                <div id="empty-state" class="hidden text-center p-8">
+                    <i data-lucide="info" class="w-12 h-12 text-gray-400 mx-auto"></i>
+                    <p class="mt-4 text-gray-600">Belum ada link yang ditambahkan.</p>
+                    <p class="text-sm text-gray-500">Gunakan formulir di samping untuk menambahkan link baru.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inisialisasi Ikon
+            lucide.createIcons();
+
+            // --- ELEMEN NAVBAR ---
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if(mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                    const menuIcon = mobileMenuBtn.querySelector('i');
+                    if (mobileMenu.classList.contains('hidden')) {
+                        menuIcon.setAttribute('data-lucide', 'menu');
+                    } else {
+                        menuIcon.setAttribute('data-lucide', 'x');
+                    }
+                    lucide.createIcons();
+                });
+            }
+
+            // --- ELEMEN KONTEN ---
+            const linkForm = document.getElementById('link-form');
+            const formTitle = document.getElementById('form-title');
+            const formIcon = document.getElementById('form-icon');
+            const linkText = document.getElementById('link-text');
+            const linkUrl = document.getElementById('link-url');
+            const editLinkId = document.getElementById('edit-link-id');
+            const saveBtnText = document.getElementById('save-btn-text');
+            const cancelEditBtn = document.getElementById('cancel-edit-btn');
+            
+            const linkListContainer = document.getElementById('link-list-container');
+            const emptyState = document.getElementById('empty-state');
+            
+            // Tombol Logout
+            const logoutBtnDesktop = document.getElementById('logout-btn-desktop');
+            const logoutBtnMobile = document.getElementById('logout-btn-mobile');
+
+            // --- SIMULASI DATABASE ---
+            let linkDatabase = [
+                { id: 1, text: 'Absensi Guru', url: 'https://absensi.sekolah.id', order: 1 },
+                { id: 2, text: 'Download Berita Acara', url: 'https://ba.sekolah.id/download', order: 2 },
+                { id: 3, text: 'Lapor Kendala', url: 'https://helpdesk.sekolah.id', order: 3 }
+            ];
+
+            // --- FUNGSI ---
+
+            // Fungsi untuk menampilkan notifikasi toast
+            function showNotification(message, type = 'info') {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                })
+                
+                Toast.fire({
+                    icon: type,
+                    title: message
+                })
+            }
+
+            // Fungsi untuk merender daftar link
+            function renderLinks() {
+                // Kosongkan kontainer
+                linkListContainer.innerHTML = '';
+                
+                if (linkDatabase.length === 0) {
+                    emptyState.classList.remove('hidden');
+                    return;
+                }
+                
+                emptyState.classList.add('hidden');
+                
+                // Urutkan berdasarkan order
+                const sortedLinks = [...linkDatabase].sort((a, b) => a.order - b.order);
+                
+                // Buat HTML untuk setiap link
+                sortedLinks.forEach(link => {
+                    const linkEl = document.createElement('div');
+                    linkEl.className = 'link-item';
+                    linkEl.setAttribute('data-id', link.id);
+                    linkEl.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center flex-1 min-w-0">
+                                <!-- PERBAIKAN: mr-3 ditambahkan di sini -->
+                                <div class="order-badge mr-3">
+                                    ${link.order}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-base font-medium text-gray-800 truncate">${link.text}</p>
+                                    <a href="${link.url}" target="_blank" class="text-sm text-blue-600 hover:underline truncate block">${link.url}</a>
+                                </div>
+                            </div>
+                            <div class="ml-4 flex-shrink-0 flex space-x-2">
+                                <button class="btn-edit p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors" data-id="${link.id}">
+                                    <i data-lucide="edit" class="w-4 h-4 pointer-events-none"></i>
+                                </button>
+                                <button class="btn-delete p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors" data-id="${link.id}">
+                                    <i data-lucide="trash-2" class="w-4 h-4 pointer-events-none"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    linkListContainer.appendChild(linkEl);
+                });
+                
+                // Inisialisasi SortableJS untuk drag & drop
+                initSortable();
+                
+                // Perbarui ikon
+                lucide.createIcons();
+            }
+
+            // Fungsi untuk inisialisasi drag & drop
+            function initSortable() {
+                new Sortable(linkListContainer, {
+                    animation: 150,
+                    ghostClass: 'dragging',
+                    onEnd: function(evt) {
+                        // Dapatkan ID dari item yang dipindahkan
+                        const movedId = parseInt(evt.item.getAttribute('data-id'));
+                        
+                        // Dapatkan semua item setelah drag
+                        const items = Array.from(linkListContainer.children);
+                        
+                        // Perbarui urutan di database
+                        items.forEach((item, index) => {
+                            const id = parseInt(item.getAttribute('data-id'));
+                            const linkIndex = linkDatabase.findIndex(link => link.id === id);
+                            if (linkIndex !== -1) {
+                                linkDatabase[linkIndex].order = index + 1;
+                            }
+                        });
+                        
+                        // Render ulang untuk memperbarui nomor urut
+                        renderLinks();
+                        
+                        // Tampilkan notifikasi
+                        showNotification('Urutan link berhasil diperbarui', 'success');
+                    }
+                });
+            }
+
+            // Fungsi untuk mereset form ke mode "Tambah Baru"
+            function resetForm() {
+                linkForm.reset();
+                editLinkId.value = '';
+                formTitle.textContent = 'Tambah Link Baru';
+                formIcon.setAttribute('data-lucide', 'plus-circle');
+                saveBtnText.textContent = 'Simpan Link';
+                cancelEditBtn.style.display = 'none';
+                lucide.createIcons();
+            }
+
+            // --- EVENT LISTENERS ---
+
+            // 1. Submit Form (Tambah atau Update)
+            linkForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const text = linkText.value.trim();
+                const url = linkUrl.value.trim();
+                const id = editLinkId.value;
+
+                if (!text || !url) {
+                    showNotification('Teks tombol dan URL tidak boleh kosong!', 'error');
+                    return;
+                }
+
+                // Validasi URL
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    showNotification('URL harus diawali dengan http:// atau https://', 'error');
+                    return;
+                }
+
+                if (id) {
+                    // --- Mode Edit ---
+                    const index = linkDatabase.findIndex(link => link.id == id);
+                    if (index > -1) {
+                        linkDatabase[index].text = text;
+                        linkDatabase[index].url = url;
+                        showNotification('Link berhasil diperbarui', 'success');
+                    }
+                } else {
+                    // --- Mode Tambah Baru ---
+                    const newLink = {
+                        id: Date.now(), // ID unik
+                        text: text,
+                        url: url,
+                        order: linkDatabase.length + 1 // Tambah di akhir
+                    };
+                    linkDatabase.push(newLink);
+                    showNotification('Link baru berhasil ditambahkan', 'success');
+                }
+                
+                resetForm();
+                renderLinks();
+            });
+
+            // 2. Tombol Batal Edit
+            cancelEditBtn.addEventListener('click', resetForm);
+
+            // 3. Event Delegation untuk tombol Edit dan Delete
+            linkListContainer.addEventListener('click', (e) => {
+                const editBtn = e.target.closest('.btn-edit');
+                const deleteBtn = e.target.closest('.btn-delete');
+
+                if (editBtn) {
+                    // --- Klik Tombol Edit ---
+                    const id = editBtn.dataset.id;
+                    const linkToEdit = linkDatabase.find(link => link.id == id);
+                    
+                    if (linkToEdit) {
+                        linkText.value = linkToEdit.text;
+                        linkUrl.value = linkToEdit.url;
+                        editLinkId.value = id;
+                        
+                        formTitle.textContent = 'Edit Link';
+                        formIcon.setAttribute('data-lucide', 'edit');
+                        saveBtnText.textContent = 'Update Link';
+                        cancelEditBtn.style.display = 'flex';
+                        lucide.createIcons();
+                        
+                        // Scroll ke atas ke form
+                        linkForm.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+
+                if (deleteBtn) {
+                    // --- Klik Tombol Delete ---
+                    const id = deleteBtn.dataset.id;
+                    
+                    Swal.fire({
+                        title: 'Apakah Anda yakin?',
+                        text: "Link ini akan dihapus permanen!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Hapus dari database
+                            linkDatabase = linkDatabase.filter(link => link.id != id);
+                            
+                            // Perbarui urutan
+                            linkDatabase.forEach((link, index) => {
+                                link.order = index + 1;
+                            });
+                            
+                            renderLinks();
+                            showNotification('Link berhasil dihapus', 'success');
+                        }
+                    })
+                }
+            });
+
+            // --- Logika Logout ---
+            const logoutAction = () => {
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Anda akan keluar dari sesi ini.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, logout!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        showNotification('Anda telah berhasil logout', 'success');
+                    }
+                })
+            };
+            
+            if(logoutBtnDesktop) logoutBtnDesktop.addEventListener('click', logoutAction);
+            if(logoutBtnMobile) logoutBtnMobile.addEventListener('click', logoutAction);
+
+            // Inisialisasi Halaman
+            renderLinks();
+        });
+    </script>
+
+</body>
+</html>

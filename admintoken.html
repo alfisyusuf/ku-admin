@@ -299,33 +299,30 @@
             // Inisialisasi Ikon
             lucide.createIcons();
 
-            // --- ELEMEN BARU UNTUK NAVBAR MOBILE ---
+            // --- ELEMEN NAVBAR ---
             const mobileMenuBtn = document.getElementById('mobile-menu-btn');
             const mobileMenu = document.getElementById('mobile-menu');
             
-            // --- FUNGSI BARU UNTUK TOGGLE NAVBAR MOBILE ---
             if(mobileMenuBtn) {
                 mobileMenuBtn.addEventListener('click', () => {
                     mobileMenu.classList.toggle('hidden');
-                    // Ganti ikon menu/hamburger
                     const menuIcon = mobileMenuBtn.querySelector('i');
                     if (mobileMenu.classList.contains('hidden')) {
-                        lucide.createIcons(); // Reset ke ikon menu
+                        menuIcon.setAttribute('data-lucide', 'menu');
                     } else {
                         menuIcon.setAttribute('data-lucide', 'x');
-                        lucide.createIcons();
                     }
+                    lucide.createIcons();
                 });
             }
 
-            // --- Ambil Elemen DOM (Lama) ---
+            // --- ELEMEN KONTEN ---
             const displayToken = document.getElementById('display-token');
             const displayStatusText = document.getElementById('display-status-text');
             const displayModeText = document.getElementById('display-mode-text');
             
-            const tokenToggle = document.getElementById('token-toggle');
+            const tokenToggle = document.getElementById('token-toggle'); // Ini kita anggap sebagai pengatur mode auto/manual
             const toggleLabel = document.getElementById('toggle-label');
-            const autoModeToggle = document.getElementById('auto-mode-toggle');
             
             const manualControls = document.getElementById('manual-controls');
             const updateTokenForm = document.getElementById('update-token-form');
@@ -333,75 +330,16 @@
             
             const autoControls = document.getElementById('auto-controls');
             const generateNowBtn = document.getElementById('generate-now-btn');
-            const autoSettingsBtn = document.getElementById('auto-settings-btn');
             
-            // Tombol Logout (Desktop & Mobile)
             const logoutBtnDesktop = document.getElementById('logout-btn-desktop');
             const logoutBtnMobile = document.getElementById('logout-btn-mobile');
 
-            // --- Variabel Status (Simulasi) ---
-            let currentToken = "123456";
-            let isSystemActive = true;
-            let isAutoMode = false; // Mulai dalam mode Manual
-            let autoTokenTimer = null;
+            // --- Variabel Status (Dihapus, diganti state UI) ---
+            let isAutoMode = false; // Hanya untuk UI, data asli ada di server
 
-            // --- Fungsi (Lama) ---
+            // --- FUNGSI ---
 
-            function generateToken() {
-                return Math.floor(100000 + Math.random() * 900000).toString();
-            }
-
-            function startAutoTimer() {
-                if (autoTokenTimer) clearInterval(autoTokenTimer); 
-                
-                autoTokenTimer = setInterval(() => {
-                    if (isSystemActive && isAutoMode) {
-                        currentToken = generateToken();
-                        updateUI();
-                        showNotification('Token diperbarui otomatis!', 'info');
-                    }
-                }, 15000); // 15 detik
-            }
-
-            function stopAutoTimer() {
-                if (autoTokenTimer) clearInterval(autoTokenTimer);
-                autoTokenTimer = null;
-            }
-
-            function updateUI() {
-                if (isSystemActive) {
-                    displayStatusText.textContent = "AKTIF";
-                    displayStatusText.classList.remove('bg-red-500');
-                    displayStatusText.classList.add('bg-green-500');
-                    toggleLabel.textContent = "Sistem Token sedang AKTIF";
-                    tokenToggle.checked = true;
-                    displayToken.textContent = currentToken;
-                } else {
-                    displayStatusText.textContent = "NONAKTIF";
-                    displayStatusText.classList.remove('bg-green-500');
-                    displayStatusText.classList.add('bg-red-500');
-                    toggleLabel.textContent = "Sistem Token sedang NONAKTIF";
-                    tokenToggle.checked = false;
-                    displayToken.textContent = "------";
-                }
-
-                if (isAutoMode) {
-                    displayModeText.textContent = "OTOMATIS";
-                    autoModeToggle.checked = true;
-                    manualControls.classList.add('controls-disabled');
-                    autoControls.classList.remove('controls-disabled');
-                } else {
-                    displayModeText.textContent = "MANUAL";
-                    autoModeToggle.checked = false;
-                    manualControls.classList.remove('controls-disabled');
-                    autoControls.classList.add('controls-disabled');
-                }
-                
-                // Perbarui ikon status
-                lucide.createIcons();
-            }
-
-            // Fungsi untuk menampilkan notifikasi
+            // Fungsi untuk menampilkan notifikasi toast
             function showNotification(message, type = 'info') {
                 const Toast = Swal.mixin({
                     toast: true,
@@ -421,36 +359,103 @@
                 })
             }
 
-            // --- Event Listeners (Lama) ---
-
-            tokenToggle.addEventListener('change', (e) => {
-                isSystemActive = e.target.checked;
-                updateUI();
-                
-                Swal.fire({
-                    title: isSystemActive ? 'Sistem Diaktifkan!' : 'Sistem Dinonaktifkan!',
-                    text: isSystemActive ? 'Peserta sekarang bisa login.' : 'Peserta tidak dapat login.',
-                    icon: isSystemActive ? 'success' : 'warning',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            });
-
-            autoModeToggle.addEventListener('change', (e) => {
-                isAutoMode = e.target.checked;
-                
-                if (isAutoMode) {
-                    currentToken = generateToken();
-                    startAutoTimer();
-                    showNotification('Mode Otomatis Aktif', 'info');
-                } else {
-                    stopAutoTimer();
-                    showNotification('Mode Manual Aktif', 'info');
+            // Fungsi untuk memanggil API dan memperbarui tampilan
+            async function fetchTokenStatus() {
+                try {
+                    const response = await fetch('/api/token-manager');
+                    if (!response.ok) {
+                        throw new Error('Gagal mengambil data dari server');
+                    }
+                    const data = await response.json();
+                    
+                    // Update state UI berdasarkan data dari server
+                    isAutoMode = (data.currentMode === 'auto');
+                    
+                    // Update semua elemen UI
+                    updateUI(data.currentToken, data.currentMode);
+                    
+                } catch (err) {
+                    showNotification(err.message, 'error');
+                    displayToken.textContent = 'ERROR';
                 }
-                updateUI();
-            });
+            }
 
-            updateTokenForm.addEventListener('submit', (e) => {
+            // Fungsi untuk meng-update tampilan (dipanggil oleh fetchTokenStatus)
+            function updateUI(token, mode) {
+                // Kita sederhanakan. Sistem selalu aktif. Yang diatur hanya mode.
+                displayStatusText.textContent = "AKTIF";
+                displayStatusText.classList.remove('bg-red-500');
+                displayStatusText.classList.add('bg-green-500');
+                
+                displayToken.textContent = token;
+
+                if (mode === 'auto') {
+                    isAutoMode = true;
+                    displayModeText.textContent = "OTOMATIS";
+                    toggleLabel.textContent = "Mode Otomatis (Token berubah otomatis)";
+                    autoModeToggle.checked = true; // 'auto-mode-toggle' adalah ID toggle di HTML Anda
+                    manualControls.classList.add('controls-disabled');
+                    autoControls.classList.remove('controls-disabled');
+                } else {
+                    isAutoMode = false;
+                    displayModeText.textContent = "MANUAL";
+                    toggleLabel.textContent = "Mode Manual (Token diatur manual)";
+                    autoModeToggle.checked = false; // 'auto-mode-toggle' adalah ID toggle di HTML Anda
+                    manualControls.classList.remove('controls-disabled');
+                    autoControls.classList.add('controls-disabled');
+                }
+                
+                lucide.createIcons();
+            }
+
+            // Fungsi baru untuk mengirim perubahan ke server
+            async function postChanges(payload) {
+                try {
+                    const response = await fetch('/api/token-manager', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) {
+                        throw new Error('Gagal menyimpan data');
+                    }
+                    await response.json(); // Menunggu konfirmasi sukses
+                    
+                    // Setelah sukses, ambil data terbaru dari server
+                    await fetchTokenStatus();
+                    
+                    return true; // Berhasil
+                    
+                } catch (err) {
+                    showNotification(err.message, 'error');
+                    return false; // Gagal
+                }
+            }
+
+            // --- EVENT LISTENERS ---
+
+            // 1. Saat toggle mode (Otomatis/Manual) diubah
+            // (Saya ganti ID-nya menjadi 'auto-mode-toggle' sesuai file HTML Anda)
+            const autoModeToggle = document.getElementById('auto-mode-toggle'); 
+            if (autoModeToggle) {
+                autoModeToggle.addEventListener('change', async (e) => {
+                    const newMode = e.target.checked ? 'auto' : 'manual';
+                    
+                    showNotification(`Mengubah mode ke ${newMode}...`, 'info');
+                    
+                    const success = await postChanges({ newMode: newMode });
+                    
+                    if (success) {
+                        showNotification(`Mode berhasil diubah ke ${newMode}`, 'success');
+                    } else {
+                        // Jika gagal, kembalikan togglenya
+                        await fetchTokenStatus(); 
+                    }
+                });
+            }
+
+            // 2. Saat form token manual disubmit
+            updateTokenForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const newToken = newTokenInput.value.trim();
                 
@@ -459,71 +464,55 @@
                     return;
                 }
                 
-                currentToken = newToken;
-                isSystemActive = true;
-                isAutoMode = false;
-                stopAutoTimer();
-                updateUI();
+                showNotification('Menyimpan token manual...', 'info');
                 
-                showNotification(`Token manual "${currentToken}" sekarang aktif`, 'success');
-                newTokenInput.value = "";
+                const success = await postChanges({ newToken: newToken });
+                
+                if (success) {
+                    showNotification(`Token manual "${newToken}" sekarang aktif`, 'success');
+                    newTokenInput.value = "";
+                } else {
+                    showNotification('Gagal menyimpan token manual', 'error');
+                }
             });
 
-            generateNowBtn.addEventListener('click', () => {
-                currentToken = generateToken();
-                isSystemActive = true;
-                isAutoMode = true;
-                startAutoTimer();
-                updateUI();
-                
-                showNotification(`Token baru "${currentToken}" telah di-generate`, 'success');
+            // 3. Saat tombol "Perbarui Sekarang" (di mode auto) diklik
+            generateNowBtn.addEventListener('click', async () => {
+                // Ini hanya shortcut untuk menyetel mode ke 'auto' lagi
+                // Server akan otomatis generate token baru
+                showNotification('Membuat token otomatis baru...', 'info');
+                const success = await postChanges({ newMode: 'auto' });
+                if (success) {
+                    showNotification('Token baru berhasil dibuat', 'success');
+                }
             });
             
             autoSettingsBtn.addEventListener('click', () => {
                 Swal.fire({
                     title: 'Pengaturan Otomatis',
-                    html: `
-                        <div class="text-left">
-                            <p class="mb-4">Atur interval pembaruan token otomatis:</p>
-                            <div class="flex items-center mb-2">
-                                <input type="radio" id="interval-15" name="interval" value="15" checked class="mr-2">
-                                <label for="interval-15">15 detik</label>
-                            </div>
-                            <div class="flex items-center mb-2">
-                                <input type="radio" id="interval-30" name="interval" value="30" class="mr-2">
-                                <label for="interval-30">30 detik</label>
-                            </div>
-                            <div class="flex items-center">
-                                <input type="radio" id="interval-60" name="interval" value="60" class="mr-2">
-                                <label for="interval-60">1 menit</label>
-                            </div>
-                        </div>
-                    `,
-                    showCancelButton: true,
-                    confirmButtonText: 'Simpan',
-                    cancelButtonText: 'Batal',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        showNotification('Pengaturan interval berhasil disimpan', 'success');
-                    }
+                    html: "Interval pembaruan token diatur di level server (via Cron Trigger). Hubungi administrator sistem jika perlu diubah.",
+                    icon: 'info'
                 });
             });
             
             // --- Logika Logout (Untuk kedua tombol) ---
             const logoutAction = () => {
+                // Cloudflare Access punya URL khusus untuk logout
+                const logoutUrl = `https://admin-psasabbs.alabidin.sch.id/cdn-cgi/access/logout`;
+                
                 Swal.fire({
                     title: 'Apakah Anda yakin?',
                     text: "Anda akan keluar dari sesi ini.",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
                     confirmButtonText: 'Ya, logout!',
                     cancelButtonText: 'Batal'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        showNotification('Anda telah berhasil logout', 'success');
-                        // window.location.href = '/logout'; 
+                        // Arahkan ke URL logout Access
+                        window.location.href = logoutUrl;
                     }
                 })
             };
@@ -531,8 +520,8 @@
             if(logoutBtnDesktop) logoutBtnDesktop.addEventListener('click', logoutAction);
             if(logoutBtnMobile) logoutBtnMobile.addEventListener('click', logoutAction);
 
-            // Inisialisasi UI saat halaman dimuat
-            updateUI();
+            // Inisialisasi Halaman
+            fetchTokenStatus();
         });
     </script>
 

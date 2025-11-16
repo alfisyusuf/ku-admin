@@ -5,18 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dasbor Admin - Manajemen Token</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Font (Inter) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- SweetAlert2 (Notifikasi) -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <!-- Lucide Icons (Ikon) -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <style>
@@ -51,16 +47,10 @@
 </head>
 <body class="bg-gray-50">
 
-    <!-- 
-      =====================
-      HEADER / NAVBAR YANG DIOPTIMALKAN
-      =====================
-    -->
     <header class="bg-white shadow-sm sticky top-0 z-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 
-                <!-- Kiri: Judul dan Navigasi Desktop -->
                 <div class="flex items-center">
                     <div class="flex items-center">
                         <div class="bg-blue-600 p-2 rounded-lg mr-3">
@@ -69,28 +59,28 @@
                         <h1 class="text-2xl font-bold text-gray-800">Admin Ujian</h1>
                     </div>
                     
-                    <!-- Menu Desktop (Hidden di mobile) -->
                     <nav class="hidden md:flex ml-10 space-x-1">
-                        <a href="#" class="nav-link-active px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                        <a href="index.html" class="nav-link-active px-4 py-2 rounded-lg text-sm font-medium transition-all">
                             <i data-lucide="key" class="w-4 h-4 inline mr-2"></i>
                             Manajemen Token
                         </a>
-                        <a href="#" class="nav-link px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                        <a href="adminlink.html" class="nav-link px-4 py-2 rounded-lg text-sm font-medium transition-all">
                             <i data-lucide="link" class="w-4 h-4 inline mr-2"></i>
-                            Manajemen Link
+                            Link Guru
+                        </a>
+                        <a href="adminlinksiswa.html" class="nav-link px-4 py-2 rounded-lg text-sm font-medium transition-all">
+                            <i data-lucide="graduation-cap" class="w-4 h-4 inline mr-2"></i>
+                            Link Siswa
                         </a>
                     </nav>
                 </div>
 
-                <!-- Kanan: Tombol Logout (Desktop) dan Tombol Burger (Mobile) -->
                 <div class="flex items-center">
-                    <!-- Tombol Logout Desktop -->
                     <button id="logout-btn-desktop" class="hidden md:flex items-center text-gray-600 hover:bg-gray-100 hover:text-red-500 p-2 rounded-lg transition-all">
                         <i data-lucide="log-out" class="w-5 h-5 mr-2"></i>
                         <span>Logout</span>
                     </button>
                     
-                    <!-- Tombol Burger Mobile (Hidden di desktop) -->
                     <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-all">
                         <i data-lucide="menu" class="w-6 h-6"></i>
                     </button>
@@ -98,16 +88,19 @@
             </div>
         </div>
 
-        <!-- Menu Dropdown Mobile (Awalnya hidden) -->
         <div id="mobile-menu" class="hidden md:hidden shadow-lg border-t border-gray-100 bg-white">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="#" class="bg-blue-50 text-blue-700 block px-3 py-3 rounded-lg text-base font-medium transition-all">
+                <a href="index.html" class="bg-blue-50 text-blue-700 block px-3 py-3 rounded-lg text-base font-medium transition-all">
                     <i data-lucide="key" class="w-4 h-4 inline mr-2"></i>
                     Manajemen Token
                 </a>
-                <a href="#" class="text-gray-700 hover:bg-gray-50 block px-3 py-3 rounded-lg text-base font-medium transition-all">
+                <a href="adminlink.html" class="text-gray-700 hover:bg-gray-50 block px-3 py-3 rounded-lg text-base font-medium transition-all">
                     <i data-lucide="link" class="w-4 h-4 inline mr-2"></i>
-                    Manajemen Link
+                    Link Guru
+                </a>
+                <a href="adminlinksiswa.html" class="text-gray-700 hover:bg-gray-50 block px-3 py-3 rounded-lg text-base font-medium transition-all">
+                    <i data-lucide="graduation-cap" class="w-4 h-4 inline mr-2"></i>
+                    Link Siswa
                 </a>
                 <button id="logout-btn-mobile" class="w-full text-left text-gray-700 hover:bg-red-50 hover:text-red-500 block px-3 py-3 rounded-lg text-base font-medium transition-all">
                     <i data-lucide="log-out" class="w-4 h-4 inline mr-2"></i>
@@ -117,14 +110,8 @@
         </div>
     </header>
 
-    <!-- 
-      =====================
-      KONTEN UTAMA YANG DIOPTIMALKAN
-      =====================
-    -->
     <main class="max-w-7xl mx-auto p-6 lg:p-8 w-full">
         
-        <!-- Header Halaman dengan Breadcrumb -->
         <div class="mb-8">
             <nav class="flex mb-3" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
@@ -148,7 +135,6 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <!-- KARTU 1: STATUS SISTEM - DIOPTIMALKAN -->
             <div class="lg:col-span-1 bg-white p-6 rounded-xl card-shadow border border-gray-100">
                 <div class="flex items-center mb-6">
                     <div class="bg-blue-100 p-2 rounded-lg mr-3">
@@ -158,7 +144,6 @@
                 </div>
                 
                 <div class="space-y-5">
-                    <!-- Status Aktif/Nonaktif -->
                     <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
                         <div class="flex justify-between items-center">
                             <div>
@@ -171,7 +156,6 @@
                         </div>
                     </div>
                     
-                    <!-- Mode Token -->
                     <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
                         <p class="text-sm text-gray-500 mb-1">Mode Token</p>
                         <div class="flex items-center justify-between">
@@ -182,12 +166,11 @@
                         </div>
                     </div>
 
-                    <!-- Token Aktif -->
                     <div class="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
                         <p class="text-sm text-blue-700 mb-1 font-medium">Token Aktif Saat Ini</p>
                         <div class="flex items-center justify-between">
                             <span id="display-token" class="text-3xl font-bold text-blue-700 tracking-wider">
-                                123456
+                                Memuat...
                             </span>
                             <i data-lucide="key" class="w-6 h-6 text-blue-500"></i>
                         </div>
@@ -196,7 +179,6 @@
                 </div>
             </div>
 
-            <!-- KARTU 2: KONTROL TOKEN - DIOPTIMALKAN -->
             <div class="lg:col-span-2 bg-white p-6 rounded-xl card-shadow border border-gray-100 space-y-6">
                 <div class="flex items-center mb-2">
                     <div class="bg-blue-100 p-2 rounded-lg mr-3">
@@ -205,7 +187,6 @@
                     <h2 class="text-xl font-semibold text-gray-800">Kontrol Token</h2>
                 </div>
 
-                <!-- Kontrol Utama (Aktif / Nonaktif) -->
                 <div class="p-5 bg-gray-50 rounded-lg border border-gray-100">
                     <h3 class="text-lg font-medium text-gray-800 mb-3 flex items-center">
                         <i data-lucide="power" class="w-4 h-4 mr-2"></i>
@@ -225,7 +206,6 @@
                     </div>
                 </div>
 
-                <!-- Kontrol Mode (Otomatis / Manual) -->
                 <div class="p-5 bg-gray-50 rounded-lg border border-gray-100">
                     <h3 class="text-lg font-medium text-gray-800 mb-3 flex items-center">
                         <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>
@@ -245,7 +225,6 @@
                     </div>
                 </div>
 
-                <!-- Kontrol Manual -->
                 <div id="manual-controls" class="p-5 border border-gray-200 rounded-lg bg-white">
                     <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
                         <i data-lucide="edit" class="w-4 h-4 mr-2"></i>
@@ -270,7 +249,6 @@
                     </form>
                 </div>
 
-                <!-- Kontrol Otomatis -->
                 <div id="auto-controls" class="p-5 border border-gray-200 rounded-lg bg-white controls-disabled">
                     <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
                         <i data-lucide="zap" class="w-4 h-4 mr-2"></i>
@@ -316,7 +294,7 @@
                 });
             }
 
-            // --- ELEMEN KONTEN ---
+            // --- ELEMEN KONTEN (DENGAN PERBAIKAN BUG) ---
             const displayToken = document.getElementById('display-token');
             const displayStatusText = document.getElementById('display-status-text');
             const displayModeText = document.getElementById('display-mode-text');
@@ -330,6 +308,9 @@
             
             const autoControls = document.getElementById('auto-controls');
             const generateNowBtn = document.getElementById('generate-now-btn');
+            
+            // PERBAIKAN BUG: Baris ini ditambahkan agar skrip tidak error
+            const autoSettingsBtn = document.getElementById('auto-settings-btn'); 
             
             const logoutBtnDesktop = document.getElementById('logout-btn-desktop');
             const logoutBtnMobile = document.getElementById('logout-btn-mobile');
@@ -392,14 +373,14 @@
                 if (mode === 'auto') {
                     isAutoMode = true;
                     displayModeText.textContent = "OTOMATIS";
-                    toggleLabel.textContent = "Mode Otomatis (Token berubah otomatis)";
+                    // toggleLabel.textContent = "Mode Otomatis (Token berubah otomatis)"; // Ini ID-nya salah di HTML
                     autoModeToggle.checked = true; // 'auto-mode-toggle' adalah ID toggle di HTML Anda
                     manualControls.classList.add('controls-disabled');
                     autoControls.classList.remove('controls-disabled');
                 } else {
                     isAutoMode = false;
                     displayModeText.textContent = "MANUAL";
-                    toggleLabel.textContent = "Mode Manual (Token diatur manual)";
+                    // toggleLabel.textContent = "Mode Manual (Token diatur manual)"; // Ini ID-nya salah di HTML
                     autoModeToggle.checked = false; // 'auto-mode-toggle' adalah ID toggle di HTML Anda
                     manualControls.classList.remove('controls-disabled');
                     autoControls.classList.add('controls-disabled');
@@ -487,13 +468,16 @@
                 }
             });
             
-            autoSettingsBtn.addEventListener('click', () => {
-                Swal.fire({
-                    title: 'Pengaturan Otomatis',
-                    html: "Interval pembaruan token diatur di level server (via Cron Trigger). Hubungi administrator sistem jika perlu diubah.",
-                    icon: 'info'
+            // Event listener untuk tombol pengaturan (yang tadinya error)
+            if(autoSettingsBtn) {
+                autoSettingsBtn.addEventListener('click', () => {
+                    Swal.fire({
+                        title: 'Pengaturan Otomatis',
+                        html: "Interval pembaruan token diatur di level server (via Cron Trigger). Hubungi administrator sistem jika perlu diubah.",
+                        icon: 'info'
+                    });
                 });
-            });
+            }
             
             // --- Logika Logout (Untuk kedua tombol) ---
             const logoutAction = () => {
@@ -521,6 +505,7 @@
             if(logoutBtnMobile) logoutBtnMobile.addEventListener('click', logoutAction);
 
             // Inisialisasi Halaman
+            // INI ADALAH FUNGSI YANG GAGAL BERJALAN TADI
             fetchTokenStatus();
         });
     </script>

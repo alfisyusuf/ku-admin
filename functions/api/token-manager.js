@@ -1,7 +1,6 @@
 /*
  * File: /functions/api/token-manager.js
- * Ini adalah API untuk MENGATUR dan MENDAPATKAN token ujian.
- * Hanya bisa diakses oleh admin (karena sudah diamankan Cloudflare Access).
+ * VERSI DIPERBARUI: Sekarang juga mengelola SYSTEM_STATUS
  */
 
 // Menangani permintaan GET (Saat admin membuka halaman)
@@ -9,14 +8,16 @@ export async function onRequestGet(context) {
   const { env } = context;
 
   try {
-    // Ambil data dari KV
+    // Ambil SEMUA data dari KV
     const token = await env.EXAM_KV.get('CURRENT_TOKEN');
     const mode = await env.EXAM_KV.get('TOKEN_MODE');
+    const status = await env.EXAM_KV.get('SYSTEM_STATUS'); // BARIS BARU
 
     // Kirim data sebagai JSON
     return new Response(JSON.stringify({
-      currentToken: token || '------', // Beri nilai default jika null
-      currentMode: mode || 'manual'  // Mode default adalah manual
+      currentToken: token || '------',
+      currentMode: mode || 'manual',
+      currentStatus: status || 'inactive' // BARIS BARU (default 'inactive')
     }), {
       headers: { 'Content-Type': 'application/json' },
     });
@@ -31,23 +32,25 @@ export async function onRequestPost(context) {
   const { request, env } = context;
 
   try {
-    // Ambil data JSON yang dikirim oleh admin
     const data = await request.json();
 
     // Periksa data apa yang dikirim
     if (data.newToken) {
       // Admin ingin mengatur token manual
       await env.EXAM_KV.put('CURRENT_TOKEN', data.newToken);
-      await env.EXAM_KV.put('TOKEN_MODE', 'manual'); // Paksa mode jadi manual
+      await env.EXAM_KV.put('TOKEN_MODE', 'manual'); 
+      
     } else if (data.newMode) {
       // Admin mengubah mode (auto/manual)
       await env.EXAM_KV.put('TOKEN_MODE', data.newMode);
-
-      // Jika pindah ke auto, langsung buat token baru
       if (data.newMode === 'auto') {
         const newToken = Math.floor(100000 + Math.random() * 900000).toString();
         await env.EXAM_KV.put('CURRENT_TOKEN', newToken);
       }
+      
+    } else if (data.newStatus) { // BLOK BARU
+      // Admin mengubah Status Sistem (Aktif/Tidak Aktif)
+      await env.EXAM_KV.put('SYSTEM_STATUS', data.newStatus);
     }
 
     return new Response(JSON.stringify({ success: true }), {
